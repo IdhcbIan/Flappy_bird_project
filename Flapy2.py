@@ -1,0 +1,245 @@
+
+
+import pygame
+import math
+import random
+
+pygame.init()
+win = pygame.display.set_mode((288, 512))
+
+Bird = [pygame.image.load('bird1.png'), pygame.image.load('bird2.png'), pygame.image.load('bird3.png')]
+clock = pygame.time.Clock()
+bg = pygame.image.load('bg.png')
+pipe = pygame.image.load('pipe.png')
+pipe2 = pygame.image.load('pipe2.png')
+
+
+ran = random.random()
+xtube = 288
+ytube = 200 
+
+widht = 25
+height = 25
+
+twidht = 52
+theight = 320
+
+x = 80
+y = 411
+ani = 0
+
+aceleration = 0.3
+ace = 0.3
+
+score = 0
+print(score)
+
+tspeed = 1 + score
+#/////////////////////
+
+ax = 0
+ay = 0
+ascore = score
+
+
+class tube():
+    def __init__(self, xtube, ytube, vel, ran):
+        self.x = int(xtube)
+        self.y = int(ytube)
+        self.vel = int(vel)
+        self.ran = int(ran)
+
+    def Hitbox(self, xtube, ytube):
+        self.hitbox = (xtube, ytube + 200, 52, 320)
+        self.hitbox2 = (xtube, ytube - 200, 52, 320)
+        pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
+        pygame.draw.rect(win, (255, 0, 0), self.hitbox2, 2)
+
+    def DrawTube(self, x, y):
+        win.blit(pipe, (x, y + 200))
+        win.blit(pipe2, (x, y - 200))
+        
+        
+    
+class bird():
+    def __init__(self, x, y, widht, height, speed):
+        self.x = int(x)
+        self.y = int(y)
+        self.widht = int(widht)
+        self.height = int(height)
+        self.speed = int(speed)
+        
+
+    def Hitbox(self, x, y, widht, height):
+        self.hitbox = (x, y, widht, height)
+        pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
+
+
+    def draw(self, x, y, ani, pace):
+        Photo = Bird[int(ani)]
+        win.blit(Photo, (x, y))
+        
+      
+#    Main window draw fonts
+
+def redraGameWindow():
+    win.blit(bg, (0, 0)) 
+    font = pygame.font.SysFont("comicsans", 30, True)
+    text = font.render("Score: " + str(score), 1, (0, 0, 0))
+
+    font2 = pygame.font.SysFont("comicsans", 30, True)
+    text2 = font2.render("Speed: " + str(tspeed), 1, (0, 0, 0))
+
+    font3 = pygame.font.SysFont("comicsans", 30, True)
+    text3 = font3.render("Ascore: " + str(ascore), 1, (0, 0, 0))
+
+    win.blit(text, (50, 0))
+    win.blit(text2, (50, 17))
+    win.blit(text3, (50, 34))
+
+
+"""
+def checkColision(x, y, widht, height):
+    if xtube < x + widht:
+        if xtube + twidht < x:
+            pass
+        else:
+            if ytube + 200 > y + height - 5 and ytube - 200 + theight < y + 2:
+                print('nice')
+            else:
+                pygame.time.delay(1000)
+                pygame.quit()
+"""
+
+def AcheckColision(x, y, widht, height):
+    if xtube < ax + widht:
+        if xtube + twidht < ax:
+            pass
+        else:
+            if ytube + 200 > ay + height - 5 and ytube - 200 + theight < ay + 2:
+                print('nice')
+            else:
+                pygame.time.delay(1000)
+                pygame.quit()
+
+
+
+
+#main loop-----------------------------
+run = True
+while run:
+    clock.tick(27)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+    keys = pygame.key.get_pressed()
+
+
+    y = 10
+    #Movement
+    if y <= 490:
+        
+        if keys[pygame.K_SPACE]:
+            y -= 10
+            aceleration = 0.5
+
+            
+        else:
+            aceleration += 0.3
+            y += aceleration
+
+        
+        #===================================
+            #Perfect bird
+
+        #  Multiplier
+        if score > 80:
+            ascore = score * 1
+
+        elif score > 20:
+            ascore = score * 2
+
+        else:
+            ascore = score
+
+        #  movement
+
+        if ay < ytube + 160:
+            ace += 0.3 + (ascore/10)
+            ay += ace 
+            under = True
+        else:
+            ay -= 28
+            ace = 0.1 
+            under = False
+            
+        #==================================
+    
+    else:
+        pygame.time.delay(1000)
+        run = False
+
+
+    # tube wall detection
+    if xtube <= 0:
+        xtube = 288
+        score += 1
+        ran = random.random()
+        ytube = ran * 200 
+        print(ran)
+        print(score)
+        
+    #checkColision(x, y, widht, height)
+    AcheckColision(ax, ay, widht, height)
+    
+    
+        
+
+
+    #animation
+    if ani <= 2:
+        ani += 0.5
+    else:
+        ani = 0
+
+    #Tube Drawing
+    tspeed = 1 + score/2
+    xtube -= 3 + tspeed
+    tubes = tube(100, ytube, 2, ran)
+    
+    tubes.DrawTube(xtube, ytube)
+    
+
+    #Bird mike 
+    mike = bird(80, 441, 34, 28, 3)
+    #mike.draw(x, y, ani, 3)
+    mike.draw(0, 0, ani, 3)
+    
+
+
+    #automated bird
+    a1 = bird(10, 10, 34, 28, 3)
+    a1.draw(10, ay, ani, 3)
+
+    
+    
+
+    #mike.Hitbox(x, y, widht, height)
+    #tubes.Hitbox(xtube, ytube)
+    pygame.display.update()
+
+    
+    redraGameWindow()
+    #checkColision(x, y, widht, height)
+    
+ 
+
+#pygame.display.update()
+pygame.quit()
+
+
+       #blitRotateCenter(win, self.img, (self.x, self.y), self.tilt)
+   
+
+
+   
